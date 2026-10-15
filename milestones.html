@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grammar App Roadmap</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --border: #e4e2dc;
+    --text: #1f1e1c;
+    --muted: #6b6862;
+    --accent: #3b6ef5;
+    --accent-soft: #e8eefe;
+    --done: #2f9e5b;
+    --done-soft: #e5f5ec;
+    --q-bg: #fbf7ec;
+    --q-border: #ecdcae;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161615;
+      --surface: #1f1f1d;
+      --border: #33322f;
+      --text: #ecebe8;
+      --muted: #9b9891;
+      --accent: #7c9cff;
+      --accent-soft: #232b45;
+      --done: #4cc47f;
+      --done-soft: #1c3226;
+      --q-bg: #26231a;
+      --q-border: #4a412a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161615;
+    --surface: #1f1f1d;
+    --border: #33322f;
+    --text: #ecebe8;
+    --muted: #9b9891;
+    --accent: #7c9cff;
+    --accent-soft: #232b45;
+    --done: #4cc47f;
+    --done-soft: #1c3226;
+    --q-bg: #26231a;
+    --q-border: #4a412a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 32px 16px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 26px; }
+  header p { margin: 0; color: var(--muted); }
+
+  .overall {
+    position: sticky; top: 0; z-index: 2;
+    margin: 20px -16px 24px; padding: 12px 16px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .bar { flex: 1; height: 8px; border-radius: 99px; background: var(--border); overflow: hidden; }
+  .bar > span { display: block; height: 100%; width: 0; background: var(--done); transition: width .25s; }
+  .overall .count { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+  button {
+    font: inherit; font-size: 13px; cursor: pointer;
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px;
+  }
+  button:hover { border-color: var(--muted); }
+
+  details.ms {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  details.ms.complete { border-color: var(--done); }
+  details.ms > summary {
+    list-style: none; cursor: pointer;
+    padding: 14px 16px;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center;
+  }
+  details.ms > summary::-webkit-details-marker { display: none; }
+  .num {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: 13px;
+  }
+  .complete .num { background: var(--done-soft); color: var(--done); }
+  .ms-title { font-weight: 600; }
+  .ms-goal { color: var(--muted); font-size: 13px; }
+  .ms-count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ms-body { padding: 0 16px 16px 58px; }
+  @media (max-width: 560px) { .ms-body { padding-left: 16px; } }
+
+  ul.steps { list-style: none; margin: 0; padding: 0; }
+  ul.steps li {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 6px 0; border-bottom: 1px dashed var(--border);
+  }
+  ul.steps li:last-child { border-bottom: 0; }
+  ul.steps input[type="checkbox"] { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--done); flex: none; }
+  ul.steps label { flex: 1; cursor: pointer; }
+  ul.steps li.checked label { text-decoration: line-through; color: var(--muted); }
+  ul.steps .del { border: 0; background: none; color: var(--muted); padding: 0 4px; }
+  code { font: 13px ui-monospace, Consolas, monospace; background: var(--accent-soft); padding: 1px 4px; border-radius: 4px; }
+
+  .add { display: flex; gap: 8px; margin-top: 8px; }
+  .add input {
+    flex: 1; min-width: 0; font: inherit; font-size: 14px;
+    padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px;
+    background: var(--bg); color: var(--text);
+  }
+
+  .qs {
+    margin-top: 14px; padding: 10px 14px;
+    background: var(--q-bg); border: 1px solid var(--q-border); border-radius: 8px;
+  }
+  .qs h4 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .qs ul { margin: 0; padding-left: 18px; }
+
+  textarea.notes {
+    width: 100%; margin-top: 12px; min-height: 60px; resize: vertical;
+    font: inherit; font-size: 14px; padding: 8px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--bg); color: var(--text);
+  }
+  footer { margin-top: 24px; display: flex; gap: 8px; flex-wrap: wrap; color: var(--muted); font-size: 13px; align-items: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Grammar Check App: Roadmap</h1>
+    <p>Practice project for the Frontend Engineer (React) interview: TypeScript, React, Redux, redux-observable/RxJS, async, CSS, tests, performance.</p>
+  </header>
+
+  <div class="overall">
+    <div class="bar"><span id="overallBar"></span></div>
+    <span class="count" id="overallCount">0 / 0</span>
+    <button id="expandAll" type="button">Expand all</button>
+  </div>
+
+  <main id="list"></main>
+
+  <footer>
+    <span>Progress, notes and custom steps are saved in this browser (localStorage).</span>
+    <button id="export" type="button">Export JSON</button>
+    <button id="import" type="button">Import JSON</button>
+    <button id="reset" type="button">Reset progress</button>
+    <input id="importFile" type="file" accept="application/json" hidden>
+  </footer>
+</div>
+
+<script>
+const MILESTONES = [
+  {
+    id: "setup",
+    title: "Project setup",
+    goal: "A clean TypeScript + React skeleton you understand line by line.",
+    steps: [
+      "Create the app with Vite (<code>react-ts</code> template); read every generated file",
+      "Enable <code>strict</code> mode in <code>tsconfig.json</code>",
+      "Add ESLint + Prettier and a <code>lint</code> script",
+      "Decide on the folder structure (<code>features/</code>, <code>shared/</code>, <code>app/</code>)",
+      "First commit with a sensible <code>.gitignore</code> (include <code>.env</code>)"
+    ],
+    questions: [
+      "What does Vite do differently from webpack in dev mode (native ESM)?",
+      "What does <code>strict: true</code> turn on in TypeScript?"
+    ]
+  },
+  {
+    id: "proxy",
+    title: "Backend proxy for the LLM",
+    goal: "The API key never reaches the browser.",
+    steps: [
+      "Small Node server (Express or Hono) with <code>POST /api/check</code>",
+      "Keep the Gemini API key in <code>.env</code> on the server only",
+      "Write the system prompt: return JSON <code>{ start, end, type, original, suggestion, explanation }[]</code>",
+      "Use the model's structured output / JSON mode",
+      "Validate input: non-empty, max length; return proper 4xx errors",
+      "Configure CORS or a Vite dev proxy",
+      "Basic rate limiting"
+    ],
+    questions: [
+      "Why must API keys not live in frontend code, even in env variables?",
+      "What is CORS and what is a preflight request?",
+      "XSS vs CSRF: what are they and how do you defend against each?"
+    ]
+  },
+  {
+    id: "basic-ui",
+    title: "Basic UI with plain React state",
+    goal: "End-to-end working check, no Redux yet, so you feel the pain Redux solves.",
+    steps: [
+      "Textarea + \"Check\" button as a controlled component",
+      "Call the API with <code>fetch</code> + <code>async/await</code> in an event handler",
+      "Loading, error and empty states",
+      "Render the list of mistakes as plain cards",
+      "Cancel an in-flight request with <code>AbortController</code>",
+      "Layout with CSS Grid/Flexbox, responsive down to 360px"
+    ],
+    questions: [
+      "Explain the event loop: call stack, microtasks, macrotasks. Order of <code>setTimeout</code> vs <code>Promise.then</code>?",
+      "<code>Promise.all</code> vs <code>allSettled</code> vs <code>race</code> vs <code>any</code>",
+      "Controlled vs uncontrolled components",
+      "Why might <code>useEffect</code> run twice in dev (StrictMode)?"
+    ]
+  },
+  {
+    id: "types",
+    title: "Types and runtime validation",
+    goal: "Never trust LLM output; make invalid states unrepresentable.",
+    steps: [
+      "Define a <code>Mistake</code> type and a <code>MistakeType</code> union (grammar, spelling, punctuation, style…)",
+      "Model request state as a discriminated union: <code>idle | loading | success | error</code>",
+      "Validate the API response with zod; derive types via <code>z.infer</code>",
+      "Handle malformed model output gracefully (show an error, don't crash)"
+    ],
+    questions: [
+      "<code>type</code> vs <code>interface</code>",
+      "What are discriminated unions and exhaustive checks with <code>never</code>?",
+      "<code>unknown</code> vs <code>any</code>; what are type guards?",
+      "Generics: write a typed <code>groupBy</code>"
+    ]
+  },
+  {
+    id: "redux",
+    title: "Redux Toolkit",
+    goal: "Move app state into a typed store.",
+    steps: [
+      "Configure the store with <code>configureStore</code>",
+      "<code>checkerSlice</code>: text, request status, mistakes, error",
+      "Typed hooks: <code>useAppDispatch</code>, <code>useAppSelector</code>",
+      "Selectors, including a memoized one with <code>createSelector</code> (e.g. mistakes grouped by type)",
+      "Inspect actions and state diffs in Redux DevTools"
+    ],
+    questions: [
+      "Redux data flow: action → reducer → store → UI. Why must reducers be pure?",
+      "How does RTK let you \"mutate\" state (Immer)?",
+      "When does a component re-render with <code>useSelector</code>?",
+      "Redux vs Context: when to use which?"
+    ]
+  },
+  {
+    id: "epics",
+    title: "redux-observable epics",
+    goal: "Side effects as streams, the core of their stack.",
+    steps: [
+      "Add <code>redux-observable</code> + RxJS and wire up <code>createEpicMiddleware</code>",
+      "<code>checkEpic</code>: <code>checkRequested</code> → <code>fromFetch</code>/<code>ajax</code> → <code>checkSucceeded</code> / <code>checkFailed</code>",
+      "Put <code>catchError</code> inside the inner stream so the epic never dies",
+      "\"Stop\" button: cancel with <code>takeUntil(action$.pipe(ofType(cancel)))</code>",
+      "Retry with backoff on 5xx / 429 errors",
+      "Remove the old <code>fetch</code> code from components"
+    ],
+    questions: [
+      "Observable vs Promise: lazy vs eager, multiple values, cancellation",
+      "Cold vs hot observables; <code>Subject</code> vs <code>BehaviorSubject</code> vs <code>ReplaySubject</code>",
+      "Why does <code>catchError</code> on the outer stream kill an epic?",
+      "Thunks vs sagas vs epics"
+    ]
+  },
+  {
+    id: "live",
+    title: "Check as you type",
+    goal: "The classic RxJS interview scenario.",
+    steps: [
+      "<code>debounceTime(800)</code> on text changes",
+      "<code>distinctUntilChanged()</code> and <code>filter</code> for a minimum length",
+      "<code>switchMap</code> so a new request cancels the stale one",
+      "Use <code>exhaustMap</code> for the manual button to ignore spam clicks",
+      "Toggle: live mode on/off"
+    ],
+    questions: [
+      "<code>switchMap</code> vs <code>mergeMap</code> vs <code>concatMap</code> vs <code>exhaustMap</code>, with a real example for each",
+      "Debounce vs throttle",
+      "Implement <code>debounce</code> by hand (classic live-coding task)"
+    ]
+  },
+  {
+    id: "highlights",
+    title: "Inline highlights and tooltips",
+    goal: "Show mistakes inside the text; CSS and accessibility practice.",
+    steps: [
+      "Split the text into segments by mistake ranges (handle overlaps and out-of-range indexes)",
+      "Render mistakes as <code>&lt;mark&gt;</code> with a color per type",
+      "Tooltip/popover with suggestion + explanation (positioning, viewport edges)",
+      "\"Apply suggestion\" updates the text and shifts the other ranges",
+      "Keyboard support: Tab between mistakes, Enter to apply, Esc to close",
+      "ARIA roles and labels; check contrast",
+      "Pixel-perfect pass against a small mockup (Figma or a sketch)"
+    ],
+    questions: [
+      "Why is using an array index as <code>key</code> a problem here?",
+      "Stacking context and <code>z-index</code>; <code>position: absolute</code> vs <code>fixed</code>",
+      "Flexbox vs Grid: when to use which?",
+      "Reflow vs repaint; what triggers layout?"
+    ]
+  },
+  {
+    id: "stream",
+    title: "Streaming responses",
+    goal: "Real-time data, close to the WebSocket work in their stack.",
+    steps: [
+      "Stream the model response from the proxy (SSE or chunked HTTP)",
+      "Wrap <code>ReadableStream</code> in an Observable; abort in the teardown function",
+      "Show the explanation text as it arrives",
+      "Optional: try the same thing over a WebSocket"
+    ],
+    questions: [
+      "SSE vs WebSocket vs long polling",
+      "How do you write <code>new Observable(subscriber =&gt; …)</code> with a correct teardown?",
+      "How do you handle WebSocket reconnects?"
+    ]
+  },
+  {
+    id: "history",
+    title: "History and personal stats",
+    goal: "Learn from your own mistakes, plus performance practice.",
+    steps: [
+      "Save each check to history (persist with an epic or middleware to localStorage)",
+      "History page with routing (React Router)",
+      "Stats: your most frequent mistake types over time",
+      "Virtualize the long history list",
+      "Lazy-load the history page with <code>React.lazy</code> + <code>Suspense</code>"
+    ],
+    questions: [
+      "How do you write a custom Redux middleware?",
+      "<code>useMemo</code> / <code>useCallback</code> / <code>React.memo</code>: when do they actually help?",
+      "What is list virtualization and why does it help?"
+    ]
+  },
+  {
+    id: "tests",
+    title: "Tests",
+    goal: "They explicitly ask for code covered by tests.",
+    steps: [
+      "Vitest setup",
+      "Unit tests: reducers, selectors, text-segmentation function",
+      "Component tests with React Testing Library (query by role, <code>userEvent</code>)",
+      "Mock the API with MSW",
+      "Marble tests for epics with <code>TestScheduler</code> (debounce + switchMap cancellation)"
+    ],
+    questions: [
+      "Unit vs integration vs e2e; the testing pyramid",
+      "Why does RTL prefer <code>getByRole</code> over test IDs?",
+      "How do marble diagrams represent time in tests?"
+    ]
+  },
+  {
+    id: "perf",
+    title: "Performance and DevTools",
+    goal: "Practice the Chrome DevTools skills they list.",
+    steps: [
+      "Find and fix a wasted re-render with the React Profiler",
+      "Record a Performance trace while typing; read the flame chart",
+      "Lighthouse audit: performance + accessibility",
+      "Bundle analysis (<code>rollup-plugin-visualizer</code>); check RxJS imports",
+      "Memory tab: confirm subscriptions are cleaned up (no leaks)"
+    ],
+    questions: [
+      "What are Core Web Vitals (LCP, INP, CLS)?",
+      "How do you find a memory leak in a React app?",
+      "How does tree shaking work?"
+    ]
+  },
+  {
+    id: "deploy",
+    title: "Docker, CI and deploy (bonus)",
+    goal: "Touch the GitLab + Docker part of their stack.",
+    steps: [
+      "Multi-stage Dockerfile for the frontend (build → nginx)",
+      "<code>docker-compose</code> with the frontend + proxy",
+      "GitLab CI pipeline: lint → test → build",
+      "Deploy somewhere and use the app daily"
+    ],
+    questions: [
+      "What is a multi-stage Docker build and why use it?",
+      "What happens from typing a URL to seeing the page?"
+    ]
+  }
+];
+
+const KEY = "grammar-roadmap-v1";
+const load = () => {
+  try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
+};
+let state = Object.assign({ done: {}, notes: {}, custom: {}, open: {} }, load());
+const save = () => {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
+};
+
+const list = document.getElementById("list");
+
+function stepsOf(ms) {
+  const base = ms.steps.map((html, i) => ({ id: `${ms.id}:${i}`, html, custom: false }));
+  const extra = (state.custom[ms.id] || []).map(s => ({ id: s.id, text: s.text, custom: true }));
+  return base.concat(extra);
+}
+
+function render() {
+  list.innerHTML = "";
+  MILESTONES.forEach((ms, idx) => {
+    const steps = stepsOf(ms);
+    const doneCount = steps.filter(s => state.done[s.id]).length;
+    const complete = steps.length > 0 && doneCount === steps.length;
+
+    const det = document.createElement("details");
+    det.className = "ms" + (complete ? " complete" : "");
+    det.open = !!state.open[ms.id];
+    det.addEventListener("toggle", () => { state.open[ms.id] = det.open; save(); });
+
+    det.innerHTML = `
+      <summary>
+        <span class="num">${complete ? "✓" : idx}</span>
+        <span><div class="ms-title">${ms.title}</div><div class="ms-goal">${ms.goal}</div></span>
+        <span class="ms-count">${doneCount}/${steps.length}</span>
+      </summary>
+      <div class="ms-body">
+        <ul class="steps"></ul>
+        <form class="add"><input placeholder="Add your own step…" aria-label="New step"><button type="submit">Add</button></form>
+        <div class="qs"><h4>Be ready to answer</h4><ul>${ms.questions.map(q => `<li>${q}</li>`).join("")}</ul></div>
+        <textarea class="notes" placeholder="Notes, links, what you learned…" aria-label="Notes for ${ms.title}"></textarea>
+      </div>`;
+
+    const ul = det.querySelector("ul.steps");
+    steps.forEach(s => {
+      const li = document.createElement("li");
+      if (state.done[s.id]) li.className = "checked";
+      const cbId = "cb-" + s.id.replace(/[^a-z0-9]/gi, "_");
+      li.innerHTML = `<input type="checkbox" id="${cbId}" ${state.done[s.id] ? "checked" : ""}><label for="${cbId}"></label>`;
+      const label = li.querySelector("label");
+      if (s.custom) label.textContent = s.text; else label.innerHTML = s.html;
+      li.querySelector("input").addEventListener("change", e => {
+        if (e.target.checked) state.done[s.id] = true; else delete state.done[s.id];
+        save(); render();
+      });
+      if (s.custom) {
+        const del = document.createElement("button");
+        del.type = "button"; del.className = "del"; del.title = "Remove step"; del.textContent = "✕";
+        del.addEventListener("click", () => {
+          state.custom[ms.id] = state.custom[ms.id].filter(c => c.id !== s.id);
+          delete state.done[s.id];
+          save(); render();
+        });
+        li.appendChild(del);
+      }
+      ul.appendChild(li);
+    });
+
+    det.querySelector("form.add").addEventListener("submit", e => {
+      e.preventDefault();
+      const input = e.target.querySelector("input");
+      const text = input.value.trim();
+      if (!text) return;
+      (state.custom[ms.id] ||= []).push({ id: `${ms.id}:c${Date.now()}`, text });
+      state.open[ms.id] = true;
+      save(); render();
+    });
+
+    const notes = det.querySelector("textarea.notes");
+    notes.value = state.notes[ms.id] || "";
+    notes.addEventListener("input", () => { state.notes[ms.id] = notes.value; save(); });
+
+    list.appendChild(det);
+  });
+  updateOverall();
+}
+
+function updateOverall() {
+  const all = MILESTONES.flatMap(stepsOf);
+  const done = all.filter(s => state.done[s.id]).length;
+  document.getElementById("overallBar").style.width = (all.length ? done / all.length * 100 : 0) + "%";
+  document.getElementById("overallCount").textContent = `${done} / ${all.length}`;
+}
+
+document.getElementById("expandAll").addEventListener("click", () => {
+  const anyClosed = MILESTONES.some(ms => !state.open[ms.id]);
+  MILESTONES.forEach(ms => state.open[ms.id] = anyClosed);
+  save(); render();
+});
+
+document.getElementById("reset").addEventListener("click", () => {
+  if (!confirm("Uncheck all steps? Notes and custom steps are kept.")) return;
+  state.done = {}; save(); render();
+});
+
+document.getElementById("export").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "grammar-roadmap-progress.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+const fileInput = document.getElementById("importFile");
+document.getElementById("import").addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", async () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    state = Object.assign({ done: {}, notes: {}, custom: {}, open: {} }, data);
+    save(); render();
+  } catch { alert("Could not read that file."); }
+  fileInput.value = "";
+});
+
+render();
+</script>
+</body>
+</html>
